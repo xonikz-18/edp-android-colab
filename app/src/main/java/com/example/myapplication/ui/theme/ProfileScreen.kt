@@ -1,6 +1,7 @@
-package com.example.myapplication
+package com.example.myapplication.ui.theme
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,12 +22,13 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -37,10 +38,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,12 +57,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.ui.theme.ProfileTheme
+import com.example.myapplication.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    isDarkTheme: Boolean = false,
+    onThemeToggle: (Boolean) -> Unit = {},
+    isDynamicColor: Boolean = true,
+    onDynamicColorToggle: (Boolean) -> Unit = {}
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -72,13 +86,42 @@ fun ProfileScreen() {
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Dark Mode") },
+                                trailingIcon = {
+                                    Switch(
+                                        checked = isDarkTheme,
+                                        onCheckedChange = { onThemeToggle(it) }
+                                    )
+                                },
+                                onClick = { onThemeToggle(!isDarkTheme) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Dynamic Theme") },
+                                trailingIcon = {
+                                    Switch(
+                                        checked = isDynamicColor,
+                                        onCheckedChange = { onDynamicColorToggle(it) }
+                                    )
+                                },
+                                onClick = { onDynamicColorToggle(!isDynamicColor) }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    actionIconContentColor = MaterialTheme.colorScheme.primary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.primary
                 )
             )
         },
@@ -96,14 +139,13 @@ fun ProfileScreen() {
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(20.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Region B: High fidelity Avatar using your custom profile.png
             Box(
-                modifier = Modifier.size(110.dp),
+                modifier = Modifier.size(116.dp),
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Box(
@@ -111,14 +153,18 @@ fun ProfileScreen() {
                         .fillMaxSize()
                         .clip(CircleShape)
                         .background(
-                            Brush.linearGradient(
+                            Brush.sweepGradient(
                                 colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
                                     MaterialTheme.colorScheme.primaryContainer,
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    MaterialTheme.colorScheme.secondary,
+                                    MaterialTheme.colorScheme.primary
                                 )
                             )
                         )
-                        .border(3.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                        .padding(4.dp)
+                        .background(MaterialTheme.colorScheme.background, CircleShape)
+                        .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -133,10 +179,10 @@ fun ProfileScreen() {
 
                 Box(
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(24.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.secondary)
-                        .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                        .border(3.dp, MaterialTheme.colorScheme.background, CircleShape)
                 )
             }
 
@@ -160,13 +206,14 @@ fun ProfileScreen() {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
                     onClick = {},
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                 ) {
@@ -177,7 +224,11 @@ fun ProfileScreen() {
                     modifier = Modifier.weight(1f),
                     border = borderStroke()
                 ) {
-                    Text("Follow", fontWeight = FontWeight.Bold)
+                    Text(
+                        "Follow",
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 
@@ -187,13 +238,13 @@ fun ProfileScreen() {
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 border = borderStroke()
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 18.dp),
+                        .padding(vertical = 20.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     StatItem(number = "128", label = "Posts")
@@ -208,14 +259,14 @@ fun ProfileScreen() {
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 border = borderStroke()
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     InfoRow(icon = Icons.Default.Email, detail = "npacatang89487@liceo.edu.ph")
                     HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
@@ -229,9 +280,9 @@ fun ProfileScreen() {
 }
 
 @Composable
-fun borderStroke() = androidx.compose.foundation.BorderStroke(
+fun borderStroke() = BorderStroke(
     width = 1.dp,
-    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
 )
 
 @Composable
@@ -248,8 +299,8 @@ fun StatItem(number: String, label: String) {
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -265,46 +316,34 @@ fun InfoRow(icon: ImageVector, detail: String) {
             imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(20.dp)
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = detail,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Normal,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
-// --- PREVIEWS ---
-
 @Preview(name = "Light Mode", showBackground = true)
 @Composable
 fun ProfilePreviewLight() {
-    ProfileTheme(darkTheme = false) {
+    var isDark by remember { mutableStateOf(false) }
+    var isDynamic by remember { mutableStateOf(false) }
+    ProfileTheme(darkTheme = isDark, dynamicColor = isDynamic) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ProfileScreen()
-        }
-    }
-}
-
-@Preview(
-    name = "Dark Mode",
-    showBackground = true,
-    uiMode = UI_MODE_NIGHT_YES
-)
-@Composable
-fun ProfilePreviewDark() {
-    ProfileTheme(darkTheme = true) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            ProfileScreen()
+            ProfileScreen(
+                isDarkTheme = isDark,
+                onThemeToggle = { isDark = it },
+                isDynamicColor = isDynamic,
+                onDynamicColorToggle = { isDynamic = it }
+            )
         }
     }
 }
