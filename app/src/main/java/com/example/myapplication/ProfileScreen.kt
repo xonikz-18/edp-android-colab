@@ -91,6 +91,7 @@ fun ProfileForm(state: ProfileUiState, viewModel: ProfileViewModel) {
 
         Spacer(Modifier.height(20.dp))
         Button(
+            enabled = state.name.isNotBlank() && state.email.isNotBlank(), //bonus
             onClick = { viewModel.showPreview() },
             modifier = Modifier.fillMaxWidth()
         ) {
