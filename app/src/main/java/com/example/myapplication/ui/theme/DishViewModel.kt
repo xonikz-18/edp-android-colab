@@ -15,9 +15,9 @@ class DishViewModel : ViewModel() {
     val dishes: StateFlow<List<Dish>> = _dishes.asStateFlow()
     private var nextId = 100
     fun addDish(name: String) {
-        if (name.isBlank()) return                     // ignore empty input
+        if (name.isBlank()) return
         val newDish = Dish(id = nextId++, name = name.trim())
-        _dishes.value = _dishes.value + newDish        // NEW list, not a mutation
+        _dishes.value = _dishes.value + newDish
     }
 
     fun getDish(dishId: Int): Dish? {
